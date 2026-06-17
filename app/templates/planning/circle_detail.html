@@ -1,0 +1,65 @@
+{% extends "layouts/base.html" %}
+{% block title %}{{ circle.name }}{% endblock %}
+{% block content %}
+<div class="mb-3">
+    <a href="/planning/circles" class="text-syria-green">&larr; العودة إلى الدوائر</a>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-syria-green text-white">
+                <h5 class="mb-0"><i class="bi bi-people"></i> الموظفون في {{ circle.name }}</h5>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead><tr><th>#</th><th>الاسم</th><th>البريد</th><th></th></tr></thead>
+                    <tbody>
+                        {% for e in employees %}
+                        {% set u = user_map.get(e.id) %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ u.name if u else '?' }}</td>
+                            <td>{{ u.email if u else '?' }}</td>
+                            <td><a href="/planning/circles/{{ circle.id }}/employees/{{ e.user_id }}" class="btn btn-sm btn-outline-gov"><i class="bi bi-eye"></i></a></td>
+                        </tr>
+                        {% endfor %}
+                        {% if not employees %}
+                        <tr><td colspan="4" class="text-center">لا يوجد موظفين في هذه الدائرة</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-syria-black text-white">
+                <h5 class="mb-0"><i class="bi bi-file-earmark-text"></i> تقارير الدائرة</h5>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead><tr><th>العنوان</th><th>تاريخ الإنشاء</th><th>التحميل</th></tr></thead>
+                    <tbody>
+                        {% for r in reports %}
+                        <tr>
+                            <td>{{ r.title }}</td>
+                            <td class="text-nowrap">{{ r.created_at.strftime('%Y-%m-%d') if r.created_at else '' }}</td>
+                            <td>
+                                {% if r.file_path %}
+                                <a href="/planning/reports/{{ r.id }}/download" class="btn btn-sm btn-outline-gov"><i class="bi bi-download"></i></a>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% if not reports %}
+                        <tr><td colspan="3" class="text-center">لا توجد تقارير</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -44,6 +44,7 @@ async def test_register_user():
             "name": "مصدر تجريبي",
             "email": "test@test.com",
             "password": "test123456",
+            "confirm_password": "test123456",
         })
         assert resp.status_code == 302
         assert resp.headers.get("location") == "/dashboard"

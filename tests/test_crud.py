@@ -103,7 +103,7 @@ async def test_licenses_workflow(seed_exporter):
 
     db = SessionLocal()
     if not db.execute(select(Product)).scalar_one_or_none():
-        db.add(Product(name="زيت زيتون", exporter_id=1))
+        db.add(Product(name="زيت زيتون", category="غذائي", hs_code="1509.10", origin="سوريا", unit="طن", exporter_id=1))
     if not db.execute(select(Market)).scalar_one_or_none():
         db.add(Market(country="الإمارات"))
     db.commit()
@@ -142,7 +142,7 @@ async def test_finance_crud(seed_exporter):
 
     db = SessionLocal()
     if not db.execute(select(Product)).scalar_one_or_none():
-        db.add(Product(name="زيت زيتون", exporter_id=1))
+        db.add(Product(name="زيت زيتون", category="غذائي", hs_code="1509.10", origin="سوريا", unit="طن", exporter_id=1))
     if not db.execute(select(Market)).scalar_one_or_none():
         db.add(Market(country="الإمارات"))
     if not db.execute(select(License)).scalar_one_or_none():

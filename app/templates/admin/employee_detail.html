@@ -1,0 +1,93 @@
+{% extends "layouts/base.html" %}
+{% block title %}{{ emp.name }}{% endblock %}
+{% block content %}
+<div class="mb-3">
+    <a href="/admin/users" class="text-syria-green">&larr; العودة إلى إدارة المستخدمين</a>
+</div>
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card bg-syria-green text-white">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-person-badge"></i> معلومات المستخدم</h5>
+                <p class="mb-1"><strong>الاسم:</strong> {{ emp.name }}</p>
+                <p class="mb-1"><strong>البريد:</strong> {{ emp.email }}</p>
+                <p class="mb-1"><strong>العنوان:</strong> {{ emp.address or 'غير محدد' }}</p>
+                <p class="mb-1"><strong>الهاتف:</strong> {{ emp.phone or 'غير محدد' }}</p>
+                <p class="mb-1"><strong>الصفة:</strong>
+                    {% if emp.role == 'admin' %}مدير
+                    {% elif emp.role == 'developer' %}مطور
+                    {% elif emp.role == 'employee' %}موظف
+                    {% else %}{{ emp.role }}{% endif %}
+                </p>
+                {% if employee and employee.department_id %}
+                <p class="mb-0"><strong>القسم:</strong> {{ dept_name or '' }}</p>
+                {% endif %}
+                <p class="mb-1"><strong>الحالة:</strong>
+                    {% if emp.is_active %}<span class="badge bg-light text-dark">نشط</span>
+                    {% else %}<span class="badge bg-danger">محظور</span>{% endif %}
+                </p>
+                {% set role_name = user_role.name if user_role else user.role if user else '' %}
+                {% if role_name != 'مطور النظام' %}
+                <p class="mb-0"><strong>الراتب:</strong> {{ emp.salary if emp.salary is not none else 'غير محدد' }}</p>
+                {% endif %}
+            </div>
+        </div>
+        {% if emp.role != 'admin' %}
+        <div class="mt-3">
+            {% if emp.is_active %}
+            <form method="post" action="/admin/employees/{{ emp.id }}/deactivate" onsubmit="return confirm('سيتم سحب كامل الصلاحيات من {{ emp.name }}. هل أنت متأكد؟')">
+                <button type="submit" class="btn btn-danger w-100"><i class="bi bi-shield-slash"></i> سحب كامل الصلاحيات</button>
+            </form>
+            {% else %}
+            <form method="post" action="/admin/employees/{{ emp.id }}/reactivate">
+                <button type="submit" class="btn btn-success w-100"><i class="bi bi-shield-check"></i> إعادة الصلاحيات</button>
+            </form>
+            {% endif %}
+        </div>
+        {% endif %}
+        <div class="mt-3">
+            <form method="post" action="/admin/users/{{ emp.id }}/reset-password" onsubmit="return confirm('سيتم إعادة تعيين كلمة السر لـ {{ emp.name }}. هل أنت متأكد؟')">
+                <button type="submit" class="btn btn-warning w-100"><i class="bi bi-key"></i> إعادة تعيين كلمة المرور</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-syria-black text-white">
+                <h5 class="mb-0"><i class="bi bi-journal-text"></i> سجل نشاط المستخدم</h5>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead><tr><th>التاريخ والوقت</th><th>الإجراء</th><th>النوع</th><th>التفاصيل</th></tr></thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td class="text-nowrap">{{ log.created_at.strftime('%Y-%m-%d %H:%M') if log.created_at else '' }}</td>
+                            <td>
+                                {% if log.action == 'CREATE' %}<span class="badge bg-success">إنشاء</span>
+                                {% elif log.action == 'UPDATE' %}<span class="badge bg-warning text-dark">تعديل</span>
+                                {% elif log.action == 'DELETE' %}<span class="badge bg-danger">حذف</span>
+                                {% else %}<span class="badge bg-secondary">{{ log.action }}</span>{% endif %}
+                            </td>
+                            <td>
+                                {% if log.entity_type == 'Exporter' %}مصدر
+                                {% elif log.entity_type == 'Product' %}منتج
+                                {% elif log.entity_type == 'Market' %}سوق
+                                {% elif log.entity_type == 'License' %}ترخيص
+                                {% elif log.entity_type == 'Finance' %}مالية
+                                {% elif log.entity_type == 'Document' %}مستند
+                                {% else %}{{ log.entity_type }}{% endif %}
+                            </td>
+                            <td>{{ log.details }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% if not logs %}
+                        <tr><td colspan="4" class="text-center">لا يوجد نشاط لهذا المستخدم</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "layouts/base.html" %}
+{% block title %}{{ label }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0"><i class="{{ icon }}"></i> {{ label }}</h4>
+    <div>
+        <a href="/reports" class="btn btn-sm btn-outline-secondary">&larr; العودة</a>
+        <a href="/reports/export/csv?entity={{ entity }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-download"></i> CSV (الكل)</a>
+        <a href="/reports/export/xlsx?entity={{ entity }}" class="btn btn-sm btn-success"><i class="bi bi-file-earmark-excel"></i> Excel (الكل)</a>
+    </div>
+</div>
+<div class="table-responsive">
+<table class="table table-striped">
+    <thead>
+        <tr>
+            {% if entity == 'licenses' %}
+            <th>#</th><th>المنتج</th><th>المصدر</th><th>السوق</th><th>الحالة</th><th>تاريخ الإنشاء</th><th>تحميل</th>
+            {% elif entity == 'finance' %}
+            <th>#</th><th>الترخيص</th><th>المصدر</th><th>المبلغ</th><th>النوع</th><th>الحالة</th><th>التاريخ</th><th>تحميل</th>
+            {% elif entity == 'exporters' %}
+            <th>#</th><th>الشركة</th><th>المالك</th><th>البريد</th><th>الهاتف</th><th>السجل التجاري</th><th>تحميل</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for r in records %}
+        <tr>
+            {% if entity == 'licenses' %}
+            <td>{{ r.id }}</td><td>{{ r.product_id }}</td><td>{{ r.exporter_id }}</td><td>{{ r.market_id }}</td>
+            <td>{% if r.status == 'pending' %}<span class="badge bg-warning">قيد الانتظار</span>
+                {% elif r.status == 'approved' %}<span class="badge bg-success">معتمد</span>
+                {% elif r.status == 'rejected' %}<span class="badge bg-danger">مرفوض</span>
+                {% endif %}
+            </td>
+            <td>{{ r.created_at.strftime('%Y-%m-%d') if r.created_at else '' }}</td>
+            {% elif entity == 'finance' %}
+            <td>{{ r.id }}</td><td>{{ r.license_id }}</td><td>{{ r.exporter_id }}</td><td>{{ r.amount }}</td><td>{{ r.fee_type }}</td>
+            <td>{% if r.status == 'paid' %}<span class="badge bg-success">مدفوع</span>{% else %}<span class="badge bg-warning">غير مدفوع</span>{% endif %}</td>
+            <td>{{ r.created_at.strftime('%Y-%m-%d') if r.created_at else '' }}</td>
+            {% elif entity == 'exporters' %}
+            <td>{{ r.id }}</td><td>{{ r.company_name }}</td><td>{{ r.owner_name }}</td>
+            <td>{{ r.email }}</td><td>{{ r.phone or '-' }}</td><td>{{ r.commercial_registry or '-' }}</td>
+            {% endif %}
+            {% if entity == 'licenses' or entity == 'finance' or entity == 'exporters' %}
+            <td class="text-nowrap">
+                <a href="/reports/export/one/csv?entity={{ entity }}&record_id={{ r.id }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-download"></i> CSV</a>
+                <a href="/reports/export/one/xlsx?entity={{ entity }}&record_id={{ r.id }}" class="btn btn-sm btn-success"><i class="bi bi-file-earmark-excel"></i></a>
+            </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+        {% if not records %}
+        <tr><td colspan="10" class="text-center">لا يوجد سجلات</td></tr>
+        {% endif %}
+    </tbody>
+</table>
+</div>
+{% endblock %}

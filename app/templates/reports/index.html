@@ -67,14 +67,26 @@
 
 <h5 class="mb-3">تصدير البيانات</h5>
 <div class="list-group">
-  <a href="/reports/export/csv?entity=licenses" class="list-group-item list-group-item-action">
-    <i class="bi bi-download"></i> تصدير التراخيص (CSV)
+  <a href="/reports/view?entity=licenses" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+    <span><i class="bi bi-file-text"></i> التراخيص</span>
+    <div class="d-flex gap-2">
+      <a href="/reports/export/csv?entity=licenses" class="btn btn-sm btn-outline-secondary" onclick="event.stopPropagation()"><i class="bi bi-download"></i> CSV</a>
+      <a href="/reports/export/xlsx?entity=licenses" class="btn btn-sm btn-success" onclick="event.stopPropagation()"><i class="bi bi-file-earmark-excel"></i> Excel</a>
+    </div>
   </a>
-  <a href="/reports/export/csv?entity=finance" class="list-group-item list-group-item-action">
-    <i class="bi bi-download"></i> تصدير المالية (CSV)
+  <a href="/reports/view?entity=finance" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+    <span><i class="bi bi-currency-exchange"></i> المالية</span>
+    <div class="d-flex gap-2">
+      <a href="/reports/export/csv?entity=finance" class="btn btn-sm btn-outline-secondary" onclick="event.stopPropagation()"><i class="bi bi-download"></i> CSV</a>
+      <a href="/reports/export/xlsx?entity=finance" class="btn btn-sm btn-success" onclick="event.stopPropagation()"><i class="bi bi-file-earmark-excel"></i> Excel</a>
+    </div>
   </a>
-  <a href="/reports/export/csv?entity=exporters" class="list-group-item list-group-item-action">
-    <i class="bi bi-download"></i> تصدير المصدرين (CSV)
+  <a href="/reports/view?entity=exporters" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+    <span><i class="bi bi-people"></i> المصدرين</span>
+    <div class="d-flex gap-2">
+      <a href="/reports/export/csv?entity=exporters" class="btn btn-sm btn-outline-secondary" onclick="event.stopPropagation()"><i class="bi bi-download"></i> CSV</a>
+      <a href="/reports/export/xlsx?entity=exporters" class="btn btn-sm btn-success" onclick="event.stopPropagation()"><i class="bi bi-file-earmark-excel"></i> Excel</a>
+    </div>
   </a>
 </div>
 {% endblock %}

@@ -1,0 +1,33 @@
+{% extends "layouts/base.html" %}
+{% block title %}مشروع جديد{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h4><i class="bi bi-kanban"></i> مشروع جديد</h4>
+        <form action="/projects/create" method="post">
+            <div class="mb-3">
+                <label class="form-label">اسم المشروع</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">الوصف</label>
+                <textarea name="description" class="form-control" rows="4"></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">القسم</label>
+                <select name="department_id" class="form-control">
+                    <option value="0">-- اختر القسم --</option>
+                    {% for d in departments %}
+                    <option value="{{ d.id }}">{{ d.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">الميزانية</label>
+                <input type="number" name="budget" class="form-control" step="0.01">
+            </div>
+            <button type="submit" class="btn btn-gov w-100">إنشاء المشروع</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

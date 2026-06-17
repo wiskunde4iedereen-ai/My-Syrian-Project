@@ -1,0 +1,63 @@
+{% extends "layouts/base.html" %}
+{% block title %}الملف الشخصي{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-syria-black text-white text-center">
+                <h4><i class="bi bi-person-circle"></i> الملف الشخصي</h4>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <tr><th>الاسم</th><td>{{ user.name }}</td></tr>
+                    <tr><th>البريد الإلكتروني</th><td>{{ user.email }}</td></tr>
+                    <tr><th>الصفة</th><td>{{ user_role.name if user_role else 'موظف' }}</td></tr>
+                    <tr><th>المديرية</th><td>مديرية التخطيط والتعاون الدولي</td></tr>
+                    {% if emp %}
+                    <tr><th>الرقم الوظيفي</th><td>{{ emp.employee_no }}</td></tr>
+                    <tr><th>المسمى الوظيفي</th><td>{{ emp.title or 'مدير مديرية' }}</td></tr>
+                    {% endif %}
+                    <tr><th>العنوان</th><td>{{ user.address or 'غير محدد' }}</td></tr>
+                    <tr><th>رقم الهاتف</th><td>{{ user.phone or 'غير محدد' }}</td></tr>
+                    <tr><th>الحالة</th><td>{% if user.is_active %}<span class="badge bg-success">نشط</span>{% else %}<span class="badge bg-danger">غير نشط</span>{% endif %}</td></tr>
+                </table>
+                <hr>
+                <h5>معلومات الاتصال</h5>
+                <form action="/auth/profile/save" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">العنوان</label>
+                        <input type="text" name="address" class="form-control" value="{{ user.address or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">رقم الهاتف</label>
+                        <input type="text" name="phone" class="form-control" value="{{ user.phone or '' }}">
+                    </div>
+                    <button type="submit" class="btn btn-gov w-100">حفظ البيانات</button>
+                </form>
+                <hr>
+                <h5>تغيير كلمة المرور</h5>
+                <form action="/auth/change-password" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">كلمة المرور الحالية</label>
+                        <input type="password" name="current_password" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">كلمة المرور الجديدة</label>
+                        <input type="password" name="new_password" class="form-control" required minlength="6">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">تأكيد كلمة المرور الجديدة</label>
+                        <input type="password" name="confirm_password" class="form-control" required minlength="6">
+                    </div>
+                    <button type="submit" class="btn btn-gold w-100">تغيير كلمة المرور</button>
+                </form>
+                <hr>
+                <div class="d-flex gap-2">
+                    <a href="/vacation/request" target="_blank" class="btn btn-outline-gov flex-fill"><i class="bi bi-calendar-plus"></i> تقديم إجازة</a>
+                    <a href="/complaints/create" target="_blank" class="btn btn-outline-gov flex-fill"><i class="bi bi-chat-dots"></i> تقديم شكوى</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

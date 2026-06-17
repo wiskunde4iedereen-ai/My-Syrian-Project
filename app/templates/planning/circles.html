@@ -1,0 +1,24 @@
+{% extends "layouts/base.html" %}
+{% block title %}الدوائر{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0"><i class="bi bi-diagram-3"></i> الدوائر التابعة لمديرية التخطيط والتعاون الدولي</h4>
+</div>
+<div class="row">
+    {% for c in circles %}
+    <div class="col-md-6 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header bg-syria-green text-white">
+                <h5 class="mb-0"><i class="bi bi-building"></i> {{ c.name }}</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>عدد الموظفين:</strong> {{ employees_count.get(c.id, 0) }}</p>
+                <div class="d-flex gap-2">
+                    <a href="/planning/circles/{{ c.id }}" class="btn btn-gov flex-fill"><i class="bi bi-people"></i> عرض الموظفين</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

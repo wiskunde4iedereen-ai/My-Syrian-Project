@@ -1,0 +1,35 @@
+{% extends "layouts/base.html" %}
+{% block title %}إدارة المستخدمين{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0"><i class="bi bi-people"></i> إدارة المستخدمين</h4>
+    <a href="/admin/users/create" class="btn btn-gov"><i class="bi bi-person-plus"></i> إضافة مستخدم</a>
+</div>
+{% if success %}
+<div class="alert alert-success">{{ success }}</div>
+{% endif %}
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead><tr><th>#</th><th>الاسم</th><th>البريد الإلكتروني</th><th>الصفة</th><th>الهاتف</th><th>الحالة</th>{% if not is_dev %}<th>الراتب</th>{% endif %}<th></th></tr></thead>
+        <tbody>
+            {% for u in users %}
+            <tr>
+                <td>{{ u.id }}</td>
+                <td><a href="/admin/employees/{{ u.id }}" class="text-syria-green">{{ u.name }}</a></td>
+                <td>{{ u.email }}</td>
+                <td>{{ roles.get(u.role_id, 'موظف') }}</td>
+                <td>{{ u.phone or '-' }}</td>
+                <td>{% if u.is_active %}<span class="badge bg-success">نشط</span>{% else %}<span class="badge bg-danger">غير نشط</span>{% endif %}</td>
+                {% if not is_dev %}<td>{{ u.salary if u.salary is not none else '-' }}</td>{% endif %}
+                <td>
+                    <a href="/admin/employees/{{ u.id }}" class="btn btn-sm btn-outline-gov"><i class="bi bi-eye"></i></a>
+                </td>
+            </tr>
+            {% endfor %}
+            {% if not users %}
+            <tr><td colspan="8" class="text-center">لا يوجد مستخدمين</td></tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

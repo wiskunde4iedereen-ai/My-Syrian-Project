@@ -1,0 +1,32 @@
+{% extends "layouts/base.html" %}
+{% block title %}سجل التدقيق{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">سجل التدقيق (Audit Log)</h4>
+</div>
+<table class="table table-striped">
+  <thead><tr><th>#</th><th>المستخدم</th><th>الإجراء</th><th>النوع</th><th>معرف العنصر</th><th>التفاصيل</th><th>التاريخ</th></tr></thead>
+  <tbody>
+    {% for log in logs %}
+    <tr>
+      <td>{{ log.id }}</td>
+      <td><a href="/admin/employees/{{ log.user_id }}" class="text-syria-green">{{ log.user_name }}</a></td>
+      <td>
+        {% if log.action == 'CREATE' %}<span class="badge bg-success">{{ log.action }}</span>
+        {% elif log.action == 'UPDATE' %}<span class="badge bg-warning text-dark">{{ log.action }}</span>
+        {% elif log.action == 'DELETE' %}<span class="badge bg-danger">{{ log.action }}</span>
+        {% else %}<span class="badge bg-secondary">{{ log.action }}</span>
+        {% endif %}
+      </td>
+      <td>{{ log.entity_type }}</td>
+      <td>{{ log.entity_id or '-' }}</td>
+      <td>{{ log.details }}</td>
+      <td>{{ log.created_at.strftime('%Y-%m-%d %H:%M') if log.created_at else '' }}</td>
+    </tr>
+    {% endfor %}
+    {% if not logs %}
+    <tr><td colspan="7" class="text-center">لا يوجد سجلات</td></tr>
+    {% endif %}
+  </tbody>
+</table>
+{% endblock %}

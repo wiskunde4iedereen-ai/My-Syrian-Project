@@ -1,0 +1,120 @@
+{% extends "layouts/base.html" %}
+{% block title %}تقرير جديد{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-syria-black text-white text-center">
+                <h4><i class="bi bi-file-earmark-plus"></i> تقرير جديد</h4>
+            </div>
+            <div class="card-body">
+                <form action="/planning/reports/create" method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label">نوع التقرير</label>
+                        <select name="source_type" class="form-control" onchange="toggleType(this.value)">
+                            <option value="director">تقارير المدير</option>
+                            <option value="directorate">تقارير المديريات</option>
+                            <option value="external">تقارير خارجية</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="circle-field">
+                        <label class="form-label">الدائرة المعنية</label>
+                        <select name="circle_id" class="form-control">
+                            <option value="0">-- اختر الدائرة --</option>
+                            {% for c in circles %}
+                            <option value="{{ c.id }}">{{ c.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3" id="directorate-field" style="display:none;">
+                        <label class="form-label">المديريات المعنية</label>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="card">
+                                    <div class="card-header bg-secondary text-white py-1"><small>المتاحة</small></div>
+                                    <div class="card-body p-1 box-dir" id="dir-avail">
+                                        {% for d in directorates %}
+                                        <div class="dir-move" draggable="true" data-id="{{ d.id }}">{{ d.name }}</div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card">
+                                    <div class="card-header bg-syria-green text-white py-1"><small>المحددة</small></div>
+                                    <div class="card-body p-1 box-dir" id="dir-sel"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <small class="text-muted">اسحب المديرية من اليسار إلى اليمين ←</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">عنوان التقرير</label>
+                        <input type="text" name="title" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">الوصف</label>
+                        <textarea name="description" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">إلى (جهة الإرسال)</label>
+                        <input type="text" name="recipient" class="form-control" placeholder="الجهة المرسل إليها">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">إرفاق ملف (PDF أو صورة)</label>
+                        <input type="file" name="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png,.gif">
+                    </div>
+                    <button type="submit" class="btn btn-gov w-100">إنشاء التقرير</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<style>
+.dir-move{padding:4px 8px;margin:2px 0;border:1px solid #ccc;border-radius:4px;cursor:grab;font-size:13px;background:#f8f9fa;}
+.dir-move:hover{background:#e9ecef;}
+#dir-sel .dir-move{background:#d4edda;border-color:#28a745;}
+.box-dir{min-height:130px;max-height:200px;overflow-y:auto;}
+.box-dir .dir-move+.dir-move{border-top:0;margin-top:0;}
+</style>
+<script>
+function toggleType(v){
+    document.getElementById('circle-field').style.display=v==='director'?'block':'none';
+    document.getElementById('directorate-field').style.display=v==='directorate'?'block':'none';
+}
+function mkDir(id,nm){
+    var d=document.createElement('div');d.className='dir-move';d.draggable=true;d.ondragstart=function(e){e.dataTransfer.setData('text/plain',id);e.dataTransfer.effectAllowed='move';};
+    d.textContent=nm;d.dataset.id=id;
+    d.ondblclick=function(){
+        var t=this.parentNode.id==='dir-avail'?'dir-sel':'dir-avail';
+        if(document.querySelector('#'+t+' [data-id="'+id+'"]')){this.remove();return;}
+        var c=mkDir(id,nm);document.getElementById(t).appendChild(c);this.remove();
+    };
+    return d;
+}
+document.addEventListener('DOMContentLoaded',function(){
+    ['dir-avail','dir-sel'].forEach(function(id){
+        var el=document.getElementById(id);
+        el.addEventListener('dragover',function(e){e.preventDefault();e.dataTransfer.dropEffect='move';});
+        el.addEventListener('drop',function(e){
+            e.preventDefault();var id=e.dataTransfer.getData('text/plain');if(!id)return;
+            if(document.querySelector('#'+el.id+' [data-id="'+id+'"]'))return;
+            var s=document.querySelector('[data-id="'+id+'"]');if(!s)return;
+            var c=mkDir(id,s.textContent);el.appendChild(c);s.remove();
+        });
+    });
+    document.querySelectorAll('.dir-move').forEach(function(el){
+        var nd=mkDir(el.dataset.id,el.textContent);el.parentNode.replaceChild(nd,el);
+    });
+    document.querySelector('form').addEventListener('submit',function(){
+        var old=this.querySelectorAll('input[name=directorate_ids]');old.forEach(function(o){o.remove();});
+        document.querySelectorAll('#dir-sel .dir-move').forEach(function(el){
+            var inp=document.createElement('input');inp.type='hidden';inp.name='directorate_ids';inp.value=el.dataset.id;
+            this.appendChild(inp);
+        },this);
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,134 @@
+{% extends "layouts/base.html" %}
+{% block title %}التقارير{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0"><i class="bi bi-file-earmark-text"></i> التقارير</h4>
+    <a href="/planning/reports/create" class="btn btn-gov"><i class="bi bi-plus-circle"></i> تقرير جديد</a>
+</div>
+<ul class="nav nav-tabs mb-3" id="reportsTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="director-tab" data-bs-toggle="tab" data-bs-target="#director" type="button" role="tab">تقارير المدير</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="directorate-tab" data-bs-toggle="tab" data-bs-target="#directorate" type="button" role="tab">تقارير المديريات</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="external-tab" data-bs-toggle="tab" data-bs-target="#external" type="button" role="tab">تقارير خارجية</button>
+    </li>
+</ul>
+<div class="tab-content">
+    <div class="tab-pane fade show active" id="director" role="tabpanel">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead><tr><th>العنوان</th><th>الوصف</th><th>تاريخ الإنشاء</th><th>الحالة</th><th>الملف</th><th>التتبع</th></tr></thead>
+                <tbody>
+                    {% for r in director_reports %}
+                    <tr>
+                        <td>{{ r.title }}</td>
+                        <td>{{ r.description or '-' }}</td>
+                        <td class="text-nowrap">{{ r.created_at.strftime('%Y-%m-%d') if r.created_at else '' }}</td>
+                        <td>
+                            {% if r.status == 'draft' %}<span class="badge bg-secondary">مسودة</span>
+                            {% elif r.status == 'sent' %}<span class="badge bg-primary">مرسل</span>
+                            {% elif r.status == 'responded' %}<span class="badge bg-success">تم الرد</span>
+                            {% elif r.status == 'closed' %}<span class="badge bg-dark">مغلق</span>
+                            {% else %}<span class="badge bg-warning text-dark">{{ r.status }}</span>{% endif %}
+                        </td>
+                        <td>
+                            {% if r.file_path %}
+                            <a href="/planning/reports/{{ r.id }}/download" class="btn btn-sm btn-outline-gov"><i class="bi bi-download"></i></a>
+                            {% else %}
+                            <form action="/planning/reports/{{ r.id }}/upload" method="post" enctype="multipart/form-data" class="d-inline">
+                                <input type="file" name="file" class="form-control form-control-sm d-inline" style="width:auto;" required>
+                                <button type="submit" class="btn btn-sm btn-outline-gov"><i class="bi bi-upload"></i></button>
+                            </form>
+                            {% endif %}
+                        </td>
+                        <td><a href="/planning/reports/{{ r.id }}/tracking" class="btn btn-sm btn-outline-gov"><i class="bi bi-clock-history"></i></a></td>
+                    </tr>
+                    {% endfor %}
+                    {% if not director_reports %}
+                    <tr><td colspan="6" class="text-center">لا توجد تقارير</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="tab-pane fade" id="directorate" role="tabpanel">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead><tr><th>العنوان</th><th>من</th><th>تاريخ الاستلام</th><th>الحالة</th><th>الملف</th><th>الرد</th><th>التتبع</th></tr></thead>
+                <tbody>
+                    {% for r in directorate_reports %}
+                    <tr>
+                        <td>{{ r.title }}</td>
+                        <td>{{ users_map.get(r.created_by, '?') }}</td>
+                        <td class="text-nowrap">{{ r.created_at.strftime('%Y-%m-%d') if r.created_at else '' }}</td>
+                        <td>
+                            {% if r.status == 'draft' %}<span class="badge bg-secondary">مسودة</span>
+                            {% elif r.status == 'sent' %}<span class="badge bg-primary">مرسل</span>
+                            {% elif r.status == 'responded' %}<span class="badge bg-success">تم الرد</span>
+                            {% elif r.status == 'closed' %}<span class="badge bg-dark">مغلق</span>
+                            {% else %}<span class="badge bg-warning text-dark">{{ r.status }}</span>{% endif %}
+                        </td>
+                        <td>
+                            {% if r.file_path %}
+                            <a href="/planning/reports/{{ r.id }}/download" class="btn btn-sm btn-outline-gov"><i class="bi bi-download"></i></a>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if r.status != 'closed' %}
+                            <a href="/planning/reports/{{ r.id }}/tracking" class="btn btn-sm btn-outline-gov"><i class="bi bi-reply"></i></a>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td><a href="/planning/reports/{{ r.id }}/tracking" class="btn btn-sm btn-outline-gov"><i class="bi bi-clock-history"></i></a></td>
+                    </tr>
+                    {% endfor %}
+                    {% if not directorate_reports %}
+                    <tr><td colspan="7" class="text-center">لا توجد تقارير من المديريات</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="tab-pane fade" id="external" role="tabpanel">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead><tr><th>العنوان</th><th>الوصف</th><th>تاريخ الاستلام</th><th>الحالة</th><th>الملف</th><th>التتبع</th></tr></thead>
+                <tbody>
+                    {% for r in external_reports %}
+                    <tr>
+                        <td>{{ r.title }}</td>
+                        <td>{{ r.description or '-' }}</td>
+                        <td class="text-nowrap">{{ r.created_at.strftime('%Y-%m-%d') if r.created_at else '' }}</td>
+                        <td>
+                            {% if r.status == 'draft' %}<span class="badge bg-secondary">مسودة</span>
+                            {% elif r.status == 'sent' %}<span class="badge bg-primary">مرسل</span>
+                            {% elif r.status == 'responded' %}<span class="badge bg-success">تم الرد</span>
+                            {% elif r.status == 'closed' %}<span class="badge bg-dark">مغلق</span>
+                            {% else %}<span class="badge bg-warning text-dark">{{ r.status }}</span>{% endif %}
+                        </td>
+                        <td>
+                            {% if r.file_path %}
+                            <a href="/planning/reports/{{ r.id }}/download" class="btn btn-sm btn-outline-gov"><i class="bi bi-download"></i></a>
+                            {% else %}
+                            <form action="/planning/reports/{{ r.id }}/upload" method="post" enctype="multipart/form-data" class="d-inline">
+                                <input type="file" name="file" class="form-control form-control-sm d-inline" style="width:auto;" required>
+                                <button type="submit" class="btn btn-sm btn-outline-gov"><i class="bi bi-upload"></i></button>
+                            </form>
+                            {% endif %}
+                        </td>
+                        <td><a href="/planning/reports/{{ r.id }}/tracking" class="btn btn-sm btn-outline-gov"><i class="bi bi-clock-history"></i></a></td>
+                    </tr>
+                    {% endfor %}
+                    {% if not external_reports %}
+                    <tr><td colspan="6" class="text-center">لا توجد تقارير خارجية</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

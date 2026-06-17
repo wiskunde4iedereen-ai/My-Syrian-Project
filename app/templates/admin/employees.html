@@ -1,0 +1,36 @@
+{% extends "layouts/base.html" %}
+{% block title %}الموظفون{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">بيانات الموظفين</h4>
+</div>
+{% if success %}
+<div class="alert alert-success">{{ success }}</div>
+{% endif %}
+<table class="table table-striped">
+  <thead><tr><th>#</th><th>الاسم</th><th>البريد</th><th>الصفة</th><th>الحالة</th><th>تغيير كلمة السر</th></tr></thead>
+  <tbody>
+    {% for u in users %}
+    <tr>
+      <td>{{ u.id }}</td>
+      <td><a href="/admin/employees/{{ u.id }}" class="fw-bold text-syria-green">{{ u.name }}</a></td>
+      <td>{{ u.email }}</td>
+      <td>{{ {'admin':'مدير','developer':'مطور','employee':'موظف','exporter':'مصدر','importer':'مستورد'}.get(u.role, u.role) }}</td>
+      <td>
+        {% if u.is_active %}<span class="badge bg-success">نشط</span>
+        {% else %}<span class="badge bg-danger">غير نشط</span>{% endif %}
+        {% if u.must_change_password %}<span class="badge bg-warning text-dark">يجب التغيير</span>{% endif %}
+      </td>
+      <td>
+        <form method="post" action="/admin/users/{{ u.id }}/reset-password" style="display:inline" onsubmit="return confirm('إعادة تعيين كلمة سر {{ u.name }}؟')">
+          <button type="submit" class="btn btn-sm btn-outline-warning"><i class="bi bi-key"></i> إعادة تعيين</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+    {% if not users %}
+    <tr><td colspan="6" class="text-center">لا يوجد موظفون</td></tr>
+    {% endif %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends "layouts/base.html" %}
+{% block title %}لوحة التحكم - مدير التخطيط{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2>مرحباً، {{ user.name }}</h2>
+        <p class="text-muted">
+            مدير مديرية التخطيط والتعاون الدولي
+            <span class="badge bg-syria-gold me-2">لوحة المديرية</span>
+        </p>
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col-md-8">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-syria-black text-white">
+                <h5 class="mb-0"><i class="bi bi-bell"></i> التنبيهات والمتابعة</h5>
+            </div>
+            <div class="card-body">
+                {% if unread_count > 0 %}
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i> لديك {{ unread_count }} إشعارات غير مقروءة
+                    <a href="/notifications" class="btn btn-sm btn-outline-warning me-2">عرض الإشعارات</a>
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">لا توجد تنبيهات جديدة</p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card shadow">
+            <div class="card-header bg-syria-black text-white">
+                <h5 class="mb-0"><i class="bi bi-diagram-3"></i> الدوائر التابعة</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for c in circles %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card bg-syria-green text-white">
+                            <div class="card-body text-center">
+                                <h5 class="card-title"><i class="bi bi-building"></i> {{ c.name }}</h5>
+                                <a href="/planning/circles/{{ c.id }}" class="text-white small">عرض التفاصيل</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-syria-black text-white">
+                <h5 class="mb-0"><i class="bi bi-calendar3"></i> التقويم</h5>
+            </div>
+            <div class="card-body p-2">
+                <div id="planning-calendar" class="text-center">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <button class="btn btn-sm btn-outline-gov" onclick="changeMonth(-1)">&laquo;</button>
+                        <strong id="cal-month-year"></strong>
+                        <button class="btn btn-sm btn-outline-gov" onclick="changeMonth(1)">&raquo;</button>
+                    </div>
+                    <table class="table table-bordered table-sm mb-0">
+                        <thead><tr><th>ح</th><th>ن</th><th>ث</th><th>ر</th><th>خ</th><th>ج</th><th>س</th></tr></thead>
+                        <tbody id="cal-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="card shadow">
+            <div class="card-header bg-syria-black text-white">
+                <h5 class="mb-0"><i class="bi bi-file-earmark-text"></i> إحصائيات سريعة</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-1"><strong>عدد الدوائر:</strong> {{ circles|length }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const syrianHolidays = {
+    0: {'1':'رأس السنة الميلادية','8':'عيد الثورة'},
+    2: {'21':'عيد الأم','23':'عيد الجيش'},
+    3: {'17':'عيد الجلاء'},
+    4: {'1':'عيد العمال','6':'عيد الشهداء'},
+    7: {'1':'عيد الجيش العربي السوري'},
+    9: {'6':'حرب تشرين التحريرية'},
+    10: {'16':'الحركة التصحيحية'},
+    11: {'25':'عيد الميلاد المجيد'}
+};
+let calDate = new Date();
+function renderCalendar() {
+    const y = calDate.getFullYear(), m = calDate.getMonth();
+    const months = ['يناير','فبراير','مارس','إبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+    document.getElementById('cal-month-year').textContent = months[m] + ' ' + y;
+    const first = new Date(y, m, 1).getDay();
+    const days = new Date(y, m + 1, 0).getDate();
+    const monthHolidays = syrianHolidays[m] || {};
+    let html = '<tr>';
+    for (let i = 0; i < first; i++) html += '<td></td>';
+    for (let d = 1; d <= days; d++) {
+        const today = new Date();
+        const isToday = d === today.getDate() && m === today.getMonth() && y === today.getFullYear();
+        const isHoliday = monthHolidays[d];
+        let cls = '';
+        if (isToday) cls = 'bg-syria-green text-white';
+        else if (isHoliday) cls = 'bg-syria-gold text-white';
+        const title = isHoliday ? monthHolidays[d] : '';
+        html += `<td class="${cls}" title="${title}" style="cursor:${title?'help':'default'}">${d}</td>`;
+        if ((first + d) % 7 === 0 && d < days) html += '</tr><tr>';
+    }
+    html += '</tr>';
+    document.getElementById('cal-body').innerHTML = html;
+}
+function changeMonth(d) { calDate.setMonth(calDate.getMonth() + d); renderCalendar(); }
+renderCalendar();
+</script>
+{% endblock %}

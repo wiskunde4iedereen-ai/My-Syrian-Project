@@ -1,0 +1,61 @@
+{% extends "layouts/base.html" %}
+{% block title %}إدارة الأقسام{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0"><i class="bi bi-diagram-3"></i> إدارة الأقسام</h4>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-syria-black text-white"><h5 class="mb-0">قسم جديد</h5></div>
+            <div class="card-body">
+                <form action="/admin/departments/create" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">اسم القسم</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">القسم الأب</label>
+                        <select name="parent_id" class="form-control">
+                            <option value="0">-- رئيسي --</option>
+                            {% for d in departments %}
+                            <option value="{{ d.id }}">{{ d.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-gov w-100">إضافة القسم</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <table class="table table-striped">
+            <thead><tr><th>#</th><th>الاسم</th><th>القسم الأب</th><th>الترتيب</th><th>إجراء</th></tr></thead>
+            <tbody>
+                {% for d in departments %}
+                <tr>
+                    <td>{{ d.id }}</td>
+                    <td>{{ d.name }}</td>
+                    <td>
+                        {% if d.parent_id %}
+                            {% for p in departments %}{% if p.id == d.parent_id %}{{ p.name }}{% endif %}{% endfor %}
+                        {% else %}
+                            <span class="text-muted">رئيسي</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ d.sort_order }}</td>
+                    <td>
+                        <form method="post" action="/admin/departments/{{ d.id }}/delete" style="display:inline" onsubmit="return confirm('حذف القسم {{ d.name }}؟')">
+                            <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if not departments %}
+                <tr><td colspan="5" class="text-center">لا يوجد أقسام</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

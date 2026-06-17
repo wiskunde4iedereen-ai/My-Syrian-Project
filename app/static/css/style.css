@@ -1,55 +1,230 @@
 :root {
-    --syria-green: #1a5632;
-    --syria-gold: #c8962e;
-    --syria-black: #1a1a1a;
-    --syria-green-light: #267a48;
-    --syria-gold-light: #daa940;
+    --gov-green: #0d5e2e;
+    --gov-green-light: #14803f;
+    --gov-bronze: #8b6b2a;
+    --gov-bronze-light: #b08838;
+    --gov-black: #1a1a1a;
+    --gov-white: #fafaf5;
+    --gov-bg: #f5f5f0;
+}
+* {
+    box-sizing: border-box;
+}
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
 }
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f5f5f0;
+    background-color: var(--gov-bg);
+    direction: rtl;
 }
-.navbar-brand {
+body .sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 223px;
+    height: 100vh;
+    background: #1a1a1a;
+    border-left: 3px solid var(--gov-bronze);
+    display: flex;
+    flex-direction: column;
+    z-index: 1050;
+    overflow-y: auto;
+    box-shadow: -2px 0 12px rgba(0,0,0,0.15);
+}
+body .sidebar-brand {
+    padding: 20px 15px 15px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    flex-shrink: 0;
+}
+body .sidebar-logo {
+    height: 45px;
+    margin-bottom: 8px;
+    display: inline-block;
+}
+body .sidebar-title {
+    color: #fafaf5;
+    font-size: 0.8rem;
+    line-height: 1.4;
     font-weight: bold;
 }
-.navbar-syria {
-    background-color: var(--syria-green) !important;
+body .sidebar-nav {
+    list-style: none;
+    padding: 10px 0;
+    margin: 0;
+    flex: 1;
+}
+body .sidebar-nav .nav-item {
+    margin: 2px 8px;
+}
+body .sidebar-nav .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+    color: rgba(255,255,255,0.75);
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+    background: transparent;
+    border: none;
+    font-weight: normal;
+    line-height: 1.5;
+}
+body .sidebar-nav .nav-link i,
+body .sidebar-nav .nav-link .bi {
+    font-size: 1.1rem;
+    width: 20px;
+    text-align: center;
+    transition: transform 0.25s ease;
+    color: rgba(255,255,255,0.6);
+    flex-shrink: 0;
+}
+body .sidebar-nav .nav-link::before {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 3px;
+    height: 100%;
+    background-color: var(--gov-bronze);
+    transform: scaleY(0);
+    transition: transform 0.25s ease;
+}
+body .sidebar-nav .nav-link:hover::before,
+body .sidebar-nav .nav-link.active::before {
+    transform: scaleY(1);
+}
+body .sidebar-nav .nav-link:hover {
+    background-color: rgba(255,255,255,0.1);
+    color: #fff;
+    padding-right: 20px;
+}
+body .sidebar-nav .nav-link:hover i,
+body .sidebar-nav .nav-link:hover .bi {
+    transform: scale(1.15);
+    color: var(--gov-bronze-light);
+}
+body .sidebar-nav .nav-link.active {
+    background-color: rgba(255,255,255,0.08);
+    color: #fff;
+}
+body .sidebar-nav .nav-link.active i,
+body .sidebar-nav .nav-link.active .bi {
+    color: var(--gov-bronze-light);
+}
+body .sidebar-nav .nav-link .badge-notif {
+    background-color: var(--gov-bronze);
+    color: #fff;
+    font-size: 0.65rem;
+    padding: 1px 6px;
+    border-radius: 10px;
+    margin-right: auto;
+    min-width: 18px;
+    text-align: center;
+    line-height: 1.4;
+}
+body .sidebar-footer {
+    padding: 10px 15px 15px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    flex-shrink: 0;
+}
+body .sidebar-footer .btn {
+    color: rgba(255,255,255,0.7);
+    border-color: rgba(255,255,255,0.3);
+}
+body .sidebar-footer .btn:hover {
+    color: #fff;
+    border-color: rgba(255,255,255,0.6);
+    background-color: rgba(255,255,255,0.08);
+}
+body .main-content {
+    margin-right: 223px;
+    padding: 20px;
+    min-height: 100vh;
+}
+body .main-content.no-sidebar {
+    margin-right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
 }
 .card {
     border-radius: 10px;
     border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 .card-header {
     border-radius: 10px 10px 0 0 !important;
 }
 .table th {
-    background-color: #e8e8e0;
-}
-.btn {
-    border-radius: 5px;
+    background-color: var(--gov-black);
+    color: var(--gov-white);
 }
 .btn-gold {
-    background-color: var(--syria-gold);
-    border-color: var(--syria-gold);
+    background-color: var(--gov-bronze);
+    border-color: var(--gov-bronze);
     color: #fff;
 }
 .btn-gold:hover {
-    background-color: var(--syria-gold-light);
-    border-color: var(--syria-gold-light);
+    background-color: var(--gov-bronze-light);
+    border-color: var(--gov-bronze-light);
+    color: #fff;
+}
+.btn-gov {
+    background-color: var(--gov-green);
+    border-color: var(--gov-green);
+    color: #fff;
+}
+.btn-gov:hover {
+    background-color: var(--gov-green-light);
+    border-color: var(--gov-green-light);
     color: #fff;
 }
 .bg-syria-green {
-    background-color: var(--syria-green) !important;
+    background-color: var(--gov-green) !important;
 }
 .bg-syria-gold {
-    background-color: var(--syria-gold) !important;
+    background-color: var(--gov-bronze) !important;
 }
 .bg-syria-black {
-    background-color: var(--syria-black) !important;
+    background-color: var(--gov-black) !important;
 }
 .text-syria-gold {
-    color: var(--syria-gold) !important;
+    color: var(--gov-bronze) !important;
 }
 .text-syria-green {
-    color: var(--syria-green) !important;
+    color: var(--gov-green) !important;
+}
+.btn-outline-gov {
+    color: var(--gov-green);
+    border-color: var(--gov-green);
+}
+.btn-outline-gov:hover {
+    background-color: var(--gov-green);
+    color: #fff;
+}
+.logo-eagle {
+    width: 80px;
+    height: auto;
+    margin-bottom: 10px;
+}
+.login-card {
+    max-width: 420px;
+    margin: 0 auto;
+}
+.badge-gov {
+    background-color: var(--gov-bronze);
+    color: #fff;
+    padding: 0.3em 0.6em;
+    border-radius: 4px;
+    font-size: 0.8rem;
 }

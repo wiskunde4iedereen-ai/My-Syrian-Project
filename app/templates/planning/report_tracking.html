@@ -1,0 +1,113 @@
+{% extends "layouts/base.html" %}
+{% block title %}تتبع التقرير{% endblock %}
+{% block content %}
+<div class="mb-3">
+    <a href="/planning/reports" class="text-syria-green">&larr; العودة إلى التقارير</a>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-syria-black text-white">
+                <h5 class="mb-0"><i class="bi bi-file-earmark-text"></i> {{ report.title }}</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>الوصف:</strong> {{ report.description or '-' }}</p>
+                <p><strong>الحالة:</strong>
+                    {% if report.status == 'draft' %}<span class="badge bg-secondary">مسودة</span>
+                    {% elif report.status == 'sent' %}<span class="badge bg-primary">مرسل</span>
+                    {% elif report.status == 'responded' %}<span class="badge bg-success">تم الرد</span>
+                    {% elif report.status == 'closed' %}<span class="badge bg-dark">مغلق</span>
+                    {% else %}<span class="badge bg-warning text-dark">{{ report.status }}</span>{% endif %}
+                </p>
+                <p><strong>تاريخ الإنشاء:</strong> {{ report.created_at.strftime('%Y-%m-%d %H:%M') if report.created_at else '' }}</p>
+                {% if report.recipient %}<p><strong>المرسل إليه:</strong> {{ report.recipient }}</p>{% endif %}
+                {% if report.file_path %}
+                <a href="/planning/reports/{{ report.id }}/download" class="btn btn-outline-gov"><i class="bi bi-download"></i> تحميل الملف</a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card shadow mb-4">
+            <div class="card-header bg-syria-green text-white">
+                <h5 class="mb-0"><i class="bi bi-pencil"></i> تحديث الحالة</h5>
+            </div>
+            <div class="card-body">
+                <form action="/planning/reports/{{ report.id }}/update-status" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">الحالة الجديدة</label>
+                        <select name="status" class="form-control">
+                            <option value="draft">مسودة</option>
+                            <option value="sent">مرسل</option>
+                            <option value="responded">تم الرد</option>
+                            <option value="closed">مغلق</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">ملاحظة</label>
+                        <textarea name="note" class="form-control" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-gov w-100">تحديث</button>
+                </form>
+            </div>
+        </div>
+        {% if report.source_type == 'directorate' and report.status != 'closed' %}
+        <div class="card shadow mb-4">
+            <div class="card-header bg-syria-gold text-white">
+                <h5 class="mb-0"><i class="bi bi-reply"></i> الرد على التقرير</h5>
+            </div>
+            <div class="card-body">
+                <form action="/planning/reports/{{ report.id }}/respond" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">نص الرد</label>
+                        <textarea name="response" class="form-control" rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-gov w-100">إرسال الرد</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+        <div class="card shadow mb-4">
+            <div class="card-header bg-syria-green text-white">
+                <h5 class="mb-0"><i class="bi bi-upload"></i> رفع ملف</h5>
+            </div>
+            <div class="card-body">
+                <form action="/planning/reports/{{ report.id }}/upload" method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <input type="file" name="file" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-gov w-100">رفع الملف</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-syria-black text-white">
+                <h5 class="mb-0"><i class="bi bi-clock-history"></i> مسار التتبع</h5>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for s in statuses %}
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <strong>
+                                {% if s.status == 'draft' %}إنشاء
+                                {% elif s.status == 'sent' %}إرسال
+                                {% elif s.status == 'responded' %}رد
+                                {% elif s.status == 'closed' %}إغلاق
+                                {% else %}{{ s.status }}{% endif %}
+                            </strong>
+                            <small class="text-muted">{{ s.created_at.strftime('%Y-%m-%d %H:%M') if s.created_at else '' }}</small>
+                        </div>
+                        {% if s.note %}<p class="mb-0 small">{{ s.note }}</p>{% endif %}
+                        <small class="text-muted">بواسطة: {{ users_map.get(s.created_by, '?') }}</small>
+                    </li>
+                    {% endfor %}
+                    {% if not statuses %}
+                    <li class="list-group-item text-center">لا توجد تحديثات</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

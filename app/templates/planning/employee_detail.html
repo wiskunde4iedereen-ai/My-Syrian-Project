@@ -1,0 +1,59 @@
+{% extends "layouts/base.html" %}
+{% block title %}{{ emp_user.name }}{% endblock %}
+{% block content %}
+<div class="mb-3">
+    <a href="/planning/circles/{{ circle.id }}" class="text-syria-green">&larr; العودة إلى {{ circle.name }}</a>
+</div>
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card bg-syria-green text-white">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-person-badge"></i> معلومات الموظف</h5>
+                <p class="mb-1"><strong>الاسم:</strong> {{ emp_user.name }}</p>
+                <p class="mb-1"><strong>البريد:</strong> {{ emp_user.email }}</p>
+                <p class="mb-1"><strong>رقم الموظف:</strong> {{ emp_record.employee_no if emp_record else 'غير محدد' }}</p>
+                <p class="mb-1"><strong>المسمى:</strong> {{ emp_record.title or 'غير محدد' }}</p>
+                <p class="mb-1"><strong>الدائرة:</strong> {{ circle.name }}</p>
+                {% if role %}<p class="mb-1"><strong>الصفة:</strong> {{ role.name }}</p>{% endif %}
+                <p class="mb-1"><strong>العنوان:</strong> {{ emp_user.address or 'غير محدد' }}</p>
+                <p class="mb-1"><strong>الهاتف:</strong> {{ emp_user.phone or 'غير محدد' }}</p>
+                <p class="mb-1"><strong>عدد الإجازات:</strong> {{ vacation_count }}</p>
+                <p class="mb-0"><strong>الحالة:</strong>
+                    {% if emp_user.is_active %}<span class="badge bg-light text-dark">نشط</span>
+                    {% else %}<span class="badge bg-danger">غير نشط</span>{% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-syria-black text-white">
+                <h5 class="mb-0"><i class="bi bi-journal-text"></i> سجل نشاط الموظف</h5>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead><tr><th>التاريخ</th><th>الإجراء</th><th>النوع</th><th>التفاصيل</th></tr></thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td class="text-nowrap">{{ log.created_at.strftime('%Y-%m-%d %H:%M') if log.created_at else '' }}</td>
+                            <td>
+                                {% if log.action == 'CREATE' %}<span class="badge bg-success">إنشاء</span>
+                                {% elif log.action == 'UPDATE' %}<span class="badge bg-warning text-dark">تعديل</span>
+                                {% elif log.action == 'DELETE' %}<span class="badge bg-danger">حذف</span>
+                                {% else %}<span class="badge bg-secondary">{{ log.action }}</span>{% endif %}
+                            </td>
+                            <td>{{ log.entity_type }}</td>
+                            <td>{{ log.details }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% if not logs %}
+                        <tr><td colspan="4" class="text-center">لا يوجد نشاط لهذا الموظف</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

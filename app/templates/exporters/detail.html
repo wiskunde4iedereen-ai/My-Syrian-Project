@@ -1,0 +1,109 @@
+{% extends "layouts/base.html" %}
+{% block title %}{{ exporter.company_name }}{% endblock %}
+{% block content %}
+<div class="mb-3">
+    <a href="/exporters" class="text-syria-green">&larr; العودة إلى قائمة المصدرين</a>
+</div>
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card bg-syria-green text-white">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-building"></i> معلومات المصدر</h5>
+                <p class="mb-1"><strong>الشركة:</strong> {{ exporter.company_name }}</p>
+                <p class="mb-1"><strong>المالك:</strong> {{ exporter.owner_name }}</p>
+                <p class="mb-1"><strong>البريد:</strong> {{ exporter.email }}</p>
+                <p class="mb-1"><strong>الهاتف:</strong> {{ exporter.phone or '-' }}</p>
+                <p class="mb-1"><strong>السجل التجاري:</strong> {{ exporter.commercial_registry or '-' }}</p>
+                <p class="mb-0"><strong>العنوان:</strong> {{ exporter.address or '-' }}</p>
+            </div>
+        </div>
+        <div class="mt-3 d-flex gap-2">
+            <a href="/exporters/{{ exporter.id }}/edit" class="btn btn-warning w-50"><i class="bi bi-pencil"></i> تعديل</a>
+            <form method="post" action="/exporters/{{ exporter.id }}/delete" style="display:inline;width:50%" onsubmit="return confirm('حذف {{ exporter.company_name }}؟')">
+                <button class="btn btn-danger w-100"><i class="bi bi-trash"></i> حذف</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card mb-3">
+            <div class="card-header bg-syria-black text-white"><h5 class="mb-0"><i class="bi bi-box"></i> المنتجات ({{ products|length }})</h5></div>
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead><tr><th>#</th><th>الاسم</th><th>التصنيف</th><th>رمز HS</th><th>المنشأ</th></tr></thead>
+                    <tbody>
+                        {% for p in products %}
+                        <tr><td>{{ p.id }}</td><td>{{ p.name }}</td><td>{{ p.category }}</td><td>{{ p.hs_code }}</td><td>{{ p.origin }}</td></tr>
+                        {% endfor %}
+                        {% if not products %}
+                        <tr><td colspan="5" class="text-center">لا يوجد منتجات</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card mb-3">
+            <div class="card-header bg-syria-black text-white"><h5 class="mb-0"><i class="bi bi-file-earmark-text"></i> التراخيص ({{ licenses|length }})</h5></div>
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead><tr><th>#</th><th>المنتج</th><th>السوق</th><th>الحالة</th><th>التاريخ</th></tr></thead>
+                    <tbody>
+                        {% for l in licenses %}
+                        <tr>
+                            <td><a href="/licenses/{{ l.id }}" class="text-syria-green">{{ l.id }}</a></td>
+                            <td>{{ product_names.get(l.product_id, '') }}</td>
+                            <td>{{ market_names.get(l.market_id, '') }}</td>
+                            <td>
+                                {% if l.status == 'pending' %}<span class="badge bg-warning">قيد الانتظار</span>
+                                {% elif l.status == 'approved' %}<span class="badge bg-success">معتمد</span>
+                                {% elif l.status == 'rejected' %}<span class="badge bg-danger">مرفوض</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ l.created_at.strftime('%Y-%m-%d') if l.created_at else '' }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% if not licenses %}
+                        <tr><td colspan="5" class="text-center">لا يوجد تراخيص</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card mb-3">
+            <div class="card-header bg-syria-black text-white"><h5 class="mb-0"><i class="bi bi-currency-exchange"></i> المالية ({{ finance_records|length }})</h5></div>
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead><tr><th>#</th><th>الترخيص</th><th>المبلغ</th><th>النوع</th><th>الحالة</th><th>التاريخ</th></tr></thead>
+                    <tbody>
+                        {% for r in finance_records %}
+                        <tr>
+                            <td>{{ r.id }}</td><td>{{ r.license_id }}</td><td>{{ r.amount }}</td><td>{{ r.fee_type }}</td>
+                            <td>{% if r.status == 'paid' %}<span class="badge bg-success">مدفوع</span>{% else %}<span class="badge bg-warning">غير مدفوع</span>{% endif %}</td>
+                            <td>{{ r.created_at.strftime('%Y-%m-%d') if r.created_at else '' }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% if not finance_records %}
+                        <tr><td colspan="6" class="text-center">لا يوجد سجلات مالية</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card mb-3">
+            <div class="card-header bg-syria-black text-white"><h5 class="mb-0"><i class="bi bi-folder"></i> المستندات ({{ documents|length }})</h5></div>
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead><tr><th>#</th><th>الترخيص</th><th>اسم الملف</th><th>النوع</th><th>تاريخ الرفع</th></tr></thead>
+                    <tbody>
+                        {% for d in documents %}
+                        <tr><td>{{ d.id }}</td><td>{{ d.license_id }}</td><td>{{ d.filename }}</td><td>{{ d.doc_type }}</td><td>{{ d.uploaded_at.strftime('%Y-%m-%d') if d.uploaded_at else '' }}</td></tr>
+                        {% endfor %}
+                        {% if not documents %}
+                        <tr><td colspan="5" class="text-center">لا يوجد مستندات</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

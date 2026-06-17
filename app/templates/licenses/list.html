@@ -16,7 +16,7 @@
   <tbody>
     {% for l in licenses %}
     <tr>
-      <td>{{ l.id }}</td>
+      <td><a href="/licenses/{{ l.id }}" class="fw-bold text-syria-green">{{ l.id }}</a></td>
       <td>{{ products.get(l.product_id, '') }}</td>
       <td>{{ exporters.get(l.exporter_id, '') }}</td>
       <td>{{ markets.get(l.market_id, '') }}</td>

@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from app.core.config import get_settings
 
-db_url = get_settings().database_url.replace("+aiosqlite", "")
+db_url = get_settings().database_url
 engine = create_engine(db_url, echo=get_settings().debug)
 
 

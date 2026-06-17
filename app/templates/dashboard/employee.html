@@ -5,7 +5,7 @@
     <div class="col-12">
         <h2>مرحباً، {{ user.name }}</h2>
         <p class="text-muted">
-            موظف هيئة
+            {% if user_role %}{{ user_role.name }}{% else %}موظف هيئة{% endif %}
             <span class="badge bg-syria-gold me-2">لوحة الموظف</span>
         </p>
     </div>

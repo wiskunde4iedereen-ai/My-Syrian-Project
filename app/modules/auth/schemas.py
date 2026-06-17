@@ -22,7 +22,6 @@ class RegisterRequest(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
-    role: str
     name: str
     user_id: int
 

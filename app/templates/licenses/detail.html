@@ -1,0 +1,78 @@
+{% extends "layouts/base.html" %}
+{% block title %}الترخيص #{{ lic.id }}{% endblock %}
+{% block content %}
+<div class="mb-3">
+    <a href="/licenses" class="text-syria-green">&larr; العودة إلى قائمة التراخيص</a>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-header bg-syria-green text-white">
+                <h5 class="mb-0">تفاصيل الترخيص #{{ lic.id }}</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>المنتج:</strong> {{ product.name if product else 'غير معروف' }}</p>
+                <p><strong>المصدر:</strong> {{ exporter.company_name if exporter else 'غير معروف' }}</p>
+                <p><strong>السوق:</strong> {{ market.country if market else 'غير معروف' }}</p>
+                <p><strong>الحالة:</strong>
+                    {% if lic.status == 'pending' %}<span class="badge bg-warning">قيد الانتظار</span>
+                    {% elif lic.status == 'approved' %}<span class="badge bg-success">معتمد</span>
+                    {% elif lic.status == 'rejected' %}<span class="badge bg-danger">مرفوض</span>
+                    {% endif %}
+                </p>
+                <p><strong>ملاحظات:</strong> {{ lic.notes or 'لا يوجد' }}</p>
+                <p><strong>تاريخ الإنشاء:</strong> {{ lic.created_at.strftime('%Y-%m-%d %H:%M') if lic.created_at else '' }}</p>
+                <p><strong>تاريخ الاعتماد:</strong> {{ lic.approved_at.strftime('%Y-%m-%d %H:%M') if lic.approved_at else 'لم يعتمد بعد' }}</p>
+            </div>
+        </div>
+        {% if lic.status == 'pending' %}
+        <div class="d-flex gap-2 mb-3">
+            <form method="post" action="/licenses/{{ lic.id }}/approve">
+                <button class="btn btn-success"><i class="bi bi-check-circle"></i> اعتماد الترخيص</button>
+            </form>
+            <form method="post" action="/licenses/{{ lic.id }}/reject">
+                <button class="btn btn-danger"><i class="bi bi-x-circle"></i> رفض الترخيص</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-syria-black text-white">
+                <h5 class="mb-0"><i class="bi bi-paperclip"></i> المرفقات</h5>
+            </div>
+            <div class="card-body">
+                {% if docs %}
+                <table class="table table-sm">
+                    <thead><tr><th>الملف</th><th>النوع</th><th>التاريخ</th><th></th></tr></thead>
+                    <tbody>
+                        {% for d in docs %}
+                        <tr>
+                            <td>{{ d.filename }}</td>
+                            <td>{{ d.doc_type }}</td>
+                            <td>{{ d.uploaded_at.strftime('%Y-%m-%d') if d.uploaded_at else '' }}</td>
+                            <td><a href="/documents/{{ d.id }}/download" class="btn btn-sm btn-info">تحميل</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-muted">لا يوجد مرفقات</p>
+                {% endif %}
+                <hr>
+                <h6>إرفاق مستند</h6>
+                <form method="post" action="/documents/upload" enctype="multipart/form-data">
+                    <input type="hidden" name="license_id" value="{{ lic.id }}">
+                    <div class="mb-2">
+                        <input name="file" type="file" class="form-control form-control-sm" required>
+                    </div>
+                    <div class="mb-2">
+                        <input name="doc_type" class="form-control form-control-sm" placeholder="نوع المستند">
+                    </div>
+                    <button type="submit" class="btn btn-gold btn-sm"><i class="bi bi-upload"></i> رفع المرفق</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

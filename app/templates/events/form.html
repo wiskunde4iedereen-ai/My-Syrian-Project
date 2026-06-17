@@ -1,0 +1,44 @@
+{% extends "layouts/base.html" %}
+{% block title %}فعالية جديدة{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h4><i class="bi bi-calendar-event"></i> فعالية جديدة</h4>
+        <form action="/events/create" method="post">
+            <div class="mb-3">
+                <label class="form-label">اسم الفعالية</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">النوع</label>
+                <select name="event_type" class="form-control">
+                    <option value="">اختر النوع...</option>
+                    <option value="معرض">معرض</option>
+                    <option value="مؤتمر">مؤتمر</option>
+                    <option value="ندوة">ندوة</option>
+                    <option value="دورة تدريبية">دورة تدريبية</option>
+                    <option value="أخرى">أخرى</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">الوصف</label>
+                <textarea name="description" class="form-control" rows="4"></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">الموقع</label>
+                <input type="text" name="location" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">القسم</label>
+                <select name="department_id" class="form-control">
+                    <option value="0">-- اختر القسم --</option>
+                    {% for d in departments %}
+                    <option value="{{ d.id }}">{{ d.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-gov w-100">إنشاء الفعالية</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

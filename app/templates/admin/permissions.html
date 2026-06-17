@@ -1,0 +1,50 @@
+{% extends "layouts/base.html" %}
+{% block title %}إدارة الصلاحيات{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0"><i class="bi bi-shield-lock"></i> إدارة الصلاحيات</h4>
+</div>
+{% if error %}
+<div class="alert alert-danger">{{ error }}</div>
+{% endif %}
+{% if success %}
+<div class="alert alert-success">{{ success }}</div>
+{% endif %}
+<form action="/admin/permissions/update" method="post">
+{% for role in roles %}
+<div class="card shadow mb-3">
+    <div class="card-header bg-syria-black text-white">
+        <h5 class="mb-0">{{ role.name }}</h5>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>المورد</th>
+                    <th class="text-center">عرض</th>
+                    <th class="text-center">إضافة</th>
+                    <th class="text-center">تعديل</th>
+                    <th class="text-center">حذف</th>
+                    <th class="text-center">اعتماد</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for resource in resources %}
+                {% set p = perm_map.get((role.id, resource)) %}
+                <tr>
+                    <td>{{ resource }}</td>
+                    <td class="text-center"><input type="checkbox" name="{{ role.id }}_{{ resource }}_can_view" value="1" {% if p and p.can_view %}checked{% endif %}></td>
+                    <td class="text-center"><input type="checkbox" name="{{ role.id }}_{{ resource }}_can_create" value="1" {% if p and p.can_create %}checked{% endif %}></td>
+                    <td class="text-center"><input type="checkbox" name="{{ role.id }}_{{ resource }}_can_edit" value="1" {% if p and p.can_edit %}checked{% endif %}></td>
+                    <td class="text-center"><input type="checkbox" name="{{ role.id }}_{{ resource }}_can_delete" value="1" {% if p and p.can_delete %}checked{% endif %}></td>
+                    <td class="text-center"><input type="checkbox" name="{{ role.id }}_{{ resource }}_can_approve" value="1" {% if p and p.can_approve %}checked{% endif %}></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endfor %}
+<button type="submit" class="btn btn-gold"><i class="bi bi-save"></i> حفظ التغييرات</button>
+</form>
+{% endblock %}

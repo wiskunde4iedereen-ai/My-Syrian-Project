@@ -1,0 +1,36 @@
+{% extends "layouts/base.html" %}
+{% block title %}طلب إجازة{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-syria-black text-white text-center">
+                <h4><i class="bi bi-calendar-plus"></i> تقديم طلب إجازة</h4>
+            </div>
+            <div class="card-body">
+                {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+                {% endif %}
+                {% if success %}
+                <div class="alert alert-success">{{ success }}</div>
+                {% endif %}
+                <form action="/vacation/request" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">تاريخ البداية</label>
+                        <input type="date" name="start_date" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">عدد الأيام</label>
+                        <input type="number" name="days" class="form-control" min="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">السبب</label>
+                        <textarea name="reason" class="form-control" rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-gov w-100">إرسال الطلب</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

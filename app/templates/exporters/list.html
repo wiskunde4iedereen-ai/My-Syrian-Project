@@ -17,7 +17,7 @@
     {% for e in exporters %}
     <tr>
       <td>{{ e.id }}</td>
-      <td>{{ e.company_name }}</td>
+      <td><a href="/exporters/{{ e.id }}" class="fw-bold text-syria-green">{{ e.company_name }}</a></td>
       <td>{{ e.owner_name }}</td>
       <td>{{ e.email }}</td>
       <td>{{ e.phone }}</td>

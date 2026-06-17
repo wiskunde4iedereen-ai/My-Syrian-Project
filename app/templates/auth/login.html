@@ -1,11 +1,15 @@
 {% extends "layouts/base.html" %}
 {% block title %}تسجيل الدخول{% endblock %}
 {% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-md-4">
-        <div class="card shadow">
-            <div class="card-header bg-syria-green text-white text-center">
-                <h4>تسجيل الدخول</h4>
+<div class="text-center mb-4">
+    <img src="/static/img/eagle.svg" alt="شعار" style="height:50px;">
+    <h5 class="text-syria-green mt-2" style="font-weight:bold;">هيئة دعم وتنمية الإنتاج المحلي والصادرات</h5>
+</div>
+<div class="row justify-content-center" style="width:100%;">
+    <div class="col-md-5 col-lg-4">
+        <div class="card shadow login-card">
+            <div class="card-header bg-syria-black text-white text-center">
+                <h4 class="mb-0">تسجيل الدخول</h4>
             </div>
             <div class="card-body">
                 {% if error %}
@@ -22,7 +26,7 @@
                     </div>
                     <button type="submit" class="btn btn-gold w-100">دخول</button>
                 </form>
-                <p class="text-center mt-3">
+                <p class="text-center mt-3 mb-0">
                     <a href="/auth/register">مستخدم جديد؟ سجل الآن</a>
                 </p>
             </div>

@@ -1,0 +1,23 @@
+{% extends "layouts/base.html" %}
+{% block title %}النسخ الاحتياطي{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-syria-black text-white text-center">
+                <h4><i class="bi bi-database"></i> النسخ الاحتياطي</h4>
+            </div>
+            <div class="card-body text-center">
+                {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+                {% endif %}
+                {% if success %}
+                <div class="alert alert-success">{{ success }}</div>
+                {% endif %}
+                <p class="mb-4">قم بتصدير نسخة احتياطية من قاعدة البيانات.</p>
+                <a href="/admin/backup/export" class="btn btn-gold"><i class="bi bi-download"></i> تصدير نسخة احتياطية</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

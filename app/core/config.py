@@ -10,9 +10,7 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 480
     debug: bool = True
     log_level: str = "DEBUG"
-
-    model_config = {"env_file": ".env"}
-
+    model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
 @lru_cache
 def get_settings():
@@ -20,5 +18,5 @@ def get_settings():
     s = Settings()
     if not s.database_url:
         db_path = os.path.join(base, "data.db").replace("\\", "/")
-        s.database_url = f"sqlite+aiosqlite:///{db_path}"
+        s.database_url = f"sqlite:///{db_path}"
     return s

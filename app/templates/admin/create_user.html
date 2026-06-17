@@ -1,0 +1,44 @@
+{% extends "layouts/base.html" %}
+{% block title %}إضافة مستخدم جديد{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-syria-black text-white text-center">
+                <h4><i class="bi bi-person-plus"></i> إضافة مستخدم جديد</h4>
+            </div>
+            <div class="card-body">
+                {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+                {% endif %}
+                {% if success %}
+                <div class="alert alert-success">{{ success }}</div>
+                {% endif %}
+                <form action="/admin/users/create" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">الاسم الكامل</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">البريد الإلكتروني</label>
+                        <input type="email" name="email" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">كلمة المرور (ستُرسل للمستخدم)</label>
+                        <input type="text" name="password" class="form-control" required minlength="6">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">الصفة الوظيفية</label>
+                        <select name="role_id" class="form-control" required>
+                            {% for r in roles %}
+                            <option value="{{ r.id }}">{{ r.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-gold w-100">إنشاء المستخدم</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
