@@ -417,7 +417,8 @@ async def save_evaluation(
     form = await request.form()
     title = form.get("title", "")
     content = form.get("content", "")
-    rating = form.get("rating", type=int)
+    rating_raw = form.get("rating")
+    rating = int(rating_raw) if rating_raw else None
     ev = EmployeeEvaluation(
         employee_id=employee_id,
         evaluator_id=current_user.id,

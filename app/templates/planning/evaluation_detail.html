@@ -111,22 +111,14 @@
                     </div>
                     {% endif %}
                     <form action="/planning/evaluations/{{ ev.id }}/share" method="post" class="mt-2 border-top pt-2">
-                        <small class="text-muted d-block mb-1">مشاركة التقييم مع:</small>
-                        <div class="row">
+                        <small class="text-muted d-block mb-1">مشاركة التقييم مع (انقر للاختيار):</small>
+                        <div class="d-flex flex-wrap gap-1 mb-2">
                             {% for d in directorates %}
-                            <div class="col-md-6">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="directorate_ids" value="{{ d.id }}" id="dir_{{ d.id }}_{{ ev.id }}">
-                                    <label class="form-check-label" for="dir_{{ d.id }}_{{ ev.id }}">{{ d.name }}</label>
-                                </div>
-                            </div>
+                            <span class="chip-selectable badge bg-secondary" data-checkbox="dir_chip_{{ ev.id }}_{{ d.id }}" onclick="toggleChip(this)" style="cursor:pointer;font-size:0.85rem;padding:6px 12px">{{ d.name }}</span>
+                            <input type="checkbox" name="directorate_ids" value="{{ d.id }}" id="dir_chip_{{ ev.id }}_{{ d.id }}" class="d-none">
                             {% endfor %}
-                            <div class="col-md-6">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="share_gm" value="on" id="gm_{{ ev.id }}">
-                                    <label class="form-check-label" for="gm_{{ ev.id }}">المدير العام</label>
-                                </div>
-                            </div>
+                            <span class="chip-selectable badge bg-secondary" data-checkbox="gm_chip_{{ ev.id }}" onclick="toggleChip(this)" style="cursor:pointer;font-size:0.85rem;padding:6px 12px">المدير العام</span>
+                            <input type="checkbox" name="share_gm" value="on" id="gm_chip_{{ ev.id }}" class="d-none">
                         </div>
                         <button type="submit" class="btn btn-sm btn-gold mt-2">
                             <i class="bi bi-share"></i> مشاركة
@@ -142,6 +134,18 @@
 {% endblock %}
 {% block scripts %}
 <script>
+function toggleChip(el) {
+    var cb = document.getElementById(el.dataset.checkbox);
+    if (!cb) return;
+    cb.checked = !cb.checked;
+    el.classList.toggle('bg-secondary');
+    var isGM = el.dataset.checkbox.indexOf('gm_') === 0;
+    if (isGM) {
+        el.classList.toggle('bg-syria-green');
+    } else {
+        el.classList.toggle('bg-syria-gold');
+    }
+}
 function printSection() {
     var infoContent = document.getElementById('employee-info-table').outerHTML;
     var evalsDiv = document.getElementById('evaluations-list');
