@@ -79,27 +79,8 @@
                             <option value="5">5 - ممتاز</option>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">مشاركة التقييم مع (اختياري)</label>
-                        <div class="row border rounded p-2">
-                            {% for d in directorates %}
-                            <div class="col-md-6">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="directorate_ids" value="{{ d.id }}" id="dir_new_{{ d.id }}">
-                                    <label class="form-check-label" for="dir_new_{{ d.id }}">{{ d.name }}</label>
-                                </div>
-                            </div>
-                            {% endfor %}
-                            <div class="col-md-6">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="share_gm" value="on" id="gm_new">
-                                    <label class="form-check-label" for="gm_new">المدير العام</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                     <button type="submit" class="btn btn-gov">
-                        <i class="bi bi-save"></i> حفظ ومشاركة
+                        <i class="bi bi-save"></i> حفظ التقييم
                     </button>
                 </form>
             </div>
@@ -162,10 +143,26 @@
 {% block scripts %}
 <script>
 function printSection() {
-    var printContent = document.getElementById('employee-info-table').outerHTML;
-    var evalsContent = document.getElementById('evaluations-list');
-    if (evalsContent) {
-        printContent += '<hr><h4>التقييمات</h4>' + evalsContent.innerHTML;
+    var infoContent = document.getElementById('employee-info-table').outerHTML;
+    var evalsDiv = document.getElementById('evaluations-list');
+    var printContent = infoContent;
+    if (evalsDiv) {
+        var items = evalsDiv.querySelectorAll('.border.rounded.p-3.mb-2');
+        if (items.length > 0) {
+            printContent += '<hr><h4>التقييمات</h4>';
+            items.forEach(function(item) {
+                var title = item.querySelector('strong');
+                var meta = item.querySelectorAll('small');
+                var rating = item.querySelector('.badge');
+                var text = item.querySelector('p');
+                printContent += '<div style="border:1px solid #ccc;border-radius:8px;padding:12px;margin-bottom:10px">';
+                if (title) printContent += '<h5>' + title.textContent + '</h5>';
+                if (meta.length > 0) printContent += '<div style="color:#666;font-size:0.9em">' + meta[0].textContent + '</div>';
+                if (rating) printContent += '<div style="margin:5px 0"><span style="background:#8b6b2a;color:#fff;padding:2px 10px;border-radius:4px">' + rating.textContent + '</span></div>';
+                if (text) printContent += '<p style="margin-top:8px">' + text.textContent + '</p>';
+                printContent += '</div>';
+            });
+        }
     }
     var win = window.open('', '_blank');
     win.document.write('<html dir="rtl"><head><title>طباعة تقييم موظف</title>');
