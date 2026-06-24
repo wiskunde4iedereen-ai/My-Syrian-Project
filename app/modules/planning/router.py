@@ -427,7 +427,50 @@ async def save_evaluation(
     )
     db.add(ev)
     db.commit()
+    db.refresh(ev)
     log_audit(db, current_user, "create", "employee_evaluation", ev.id, f"تقييم للموظف {emp.employee_no}")
+    target_ids = form.getlist("directorate_ids") if hasattr(form, "getlist") else []
+    general_manager = form.get("share_gm") == "on"
+    shared_list = []
+    if target_ids:
+        for did in target_ids:
+            try:
+                directors = db.execute(
+                    select(User).join(Employee).join(Role).where(
+                        Employee.department_id == int(did),
+                        Role.name == "مدير مديرية",
+                    )
+                ).scalars().all()
+                for d in directors:
+                    if d.id not in shared_list:
+                        shared_list.append(d.id)
+                        notification = Notification(
+                            user_id=d.id,
+                            message=f"تقييم جديد: {ev.title}",
+                            related_type="employee_evaluation",
+                            related_id=ev.id,
+                        )
+                        db.add(notification)
+            except ValueError:
+                pass
+    if general_manager:
+        gm_users = db.execute(
+            select(User).join(Employee).join(Role).where(Role.name == "مدير عام")
+        ).scalars().all()
+        for gm in gm_users:
+            if gm.id not in shared_list:
+                shared_list.append(gm.id)
+                notification = Notification(
+                    user_id=gm.id,
+                    message=f"تقييم جديد: {ev.title}",
+                    related_type="employee_evaluation",
+                    related_id=ev.id,
+                )
+                db.add(notification)
+    if shared_list:
+        import json
+        ev.shared_with = json.dumps(shared_list)
+    db.commit()
     return RedirectResponse(url=f"/planning/evaluations/{employee_id}", status_code=302)
 
 
