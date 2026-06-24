@@ -1,0 +1,138 @@
+{% extends "layouts/base.html" %}
+{% block title %}تقييم موظف{% endblock %}
+{% block content %}
+<div class="mb-3">
+    <a href="/planning/evaluations" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-right"></i> العودة
+    </a>
+</div>
+<div class="row">
+    <div class="col-md-5">
+        <div class="card shadow mb-3">
+            <div class="card-header bg-syria-black text-white">
+                <h5 class="mb-0">معلومات الموظف</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered mb-0">
+                    <tr>
+                        <th>الاسم</th>
+                        <td>{{ emp_user.name if emp_user else '?' }}</td>
+                    </tr>
+                    <tr>
+                        <th>البريد</th>
+                        <td>{{ emp_user.email if emp_user else '?' }}</td>
+                    </tr>
+                    <tr>
+                        <th>الرقم الوظيفي</th>
+                        <td>{{ emp.employee_no }}</td>
+                    </tr>
+                    <tr>
+                        <th>القسم</th>
+                        <td>{{ dept.name if dept else '—' }}</td>
+                    </tr>
+                    <tr>
+                        <th>المسمى</th>
+                        <td>{{ emp.title or '—' }}</td>
+                    </tr>
+                    <tr>
+                        <th>المهام</th>
+                        <td>{{ role.name if role else '—' }}</td>
+                    </tr>
+                    <tr>
+                        <th>الجوال</th>
+                        <td>{{ emp.phone or '—' }}</td>
+                    </tr>
+                    <tr>
+                        <th>تاريخ التوظيف</th>
+                        <td>{{ emp.hire_date or '—' }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-7">
+        <div class="card shadow mb-3">
+            <div class="card-header bg-syria-black text-white">
+                <h5 class="mb-0">كتابة تقييم جديد</h5>
+            </div>
+            <div class="card-body">
+                <form action="/planning/evaluations/{{ emp.id }}" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">عنوان التقييم</label>
+                        <input type="text" name="title" class="form-control" placeholder="مثال: تقييم الربع الأول 2025">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">التقييم</label>
+                        <textarea name="content" rows="5" class="form-control" required placeholder="اكتب تقييمك التفصيلي هنا..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">التقييم العددي (1-5)</label>
+                        <select name="rating" class="form-select">
+                            <option value="">— بدون —</option>
+                            <option value="1">1 - ضعيف</option>
+                            <option value="2">2 - مقبول</option>
+                            <option value="3">3 - جيد</option>
+                            <option value="4">4 - جيد جداً</option>
+                            <option value="5">5 - ممتاز</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-gov">
+                        <i class="bi bi-save"></i> حفظ التقييم
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% if evaluations %}
+        <div class="card shadow">
+            <div class="card-header bg-syria-black text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">التقييمات السابقة</h5>
+            </div>
+            <div class="card-body">
+                {% for ev in evaluations %}
+                <div class="border rounded p-3 mb-2">
+                    <div class="d-flex justify-content-between">
+                        <strong>{{ ev.title }}</strong>
+                        <small class="text-muted">{{ ev.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                    </div>
+                    <small class="text-muted">بواسطة: {{ evaluator_names.get(ev.evaluator_id, '?') }}</small>
+                    {% if ev.rating %}
+                    <div class="mt-1">
+                        <span class="badge bg-syria-gold">{{ ev.rating }}/5</span>
+                    </div>
+                    {% endif %}
+                    <p class="mt-2 mb-0">{{ ev.content }}</p>
+                    {% if ev.shared_with and ev.shared_with != '[]' and ev.shared_with != '' %}
+                    <div class="mt-2">
+                        <span class="badge bg-syria-green">مشارك مع جهات أخرى</span>
+                    </div>
+                    {% endif %}
+                    <form action="/planning/evaluations/{{ ev.id }}/share" method="post" class="mt-2 border-top pt-2">
+                        <small class="text-muted d-block mb-1">مشاركة التقييم مع:</small>
+                        <div class="row">
+                            {% for d in directorates %}
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="directorate_ids" value="{{ d.id }}" id="dir_{{ d.id }}_{{ ev.id }}">
+                                    <label class="form-check-label" for="dir_{{ d.id }}_{{ ev.id }}">{{ d.name }}</label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="share_gm" value="on" id="gm_{{ ev.id }}">
+                                    <label class="form-check-label" for="gm_{{ ev.id }}">المدير العام</label>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-gold mt-2">
+                            <i class="bi bi-share"></i> مشاركة
+                        </button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

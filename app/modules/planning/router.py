@@ -14,9 +14,11 @@ from app.models.audit_log import AuditLog
 from app.models.notification import Notification
 from app.models.planning import PlanningReport, PlanningReportStatus
 from app.models.vacation_request import VacationRequest
+from app.models.evaluation import EmployeeEvaluation
 from app.modules.auth.deps import get_current_user, is_planning_director
 from app.templates import render
 from app.core.exceptions import Forbidden, NotFound
+from app.core.audit import log_audit
 
 router = APIRouter(prefix="/planning", tags=["planning"])
 
@@ -338,3 +340,149 @@ async def respond_report(
     db.add(tracking)
     db.commit()
     return RedirectResponse(url="/planning/reports", status_code=302)
+
+
+@router.get("/evaluations")
+async def list_evaluations(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    _=Depends(_require_planning_director),
+):
+    planning_employees = db.execute(
+        select(Employee).where(
+            (Employee.department_id == PLANNING_DEPT_ID) |
+            (Employee.department_id.in_(
+                select(Department.id).where(Department.parent_id == PLANNING_DEPT_ID)
+            ))
+        ).order_by(Employee.id)
+    ).scalars().all()
+    users_map = {}
+    dept_map = {}
+    for e in planning_employees:
+        u = db.execute(select(User).where(User.id == e.user_id)).scalar_one_or_none()
+        if u:
+            users_map[e.id] = u
+        d = db.execute(select(Department).where(Department.id == e.department_id)).scalar_one_or_none()
+        if d:
+            dept_map[e.id] = d
+    evaluation_counts = {}
+    for e in planning_employees:
+        cnt = db.execute(
+            select(EmployeeEvaluation).where(EmployeeEvaluation.employee_id == e.id)
+        ).scalars().all()
+        evaluation_counts[e.id] = len(cnt)
+    return render("planning/evaluations.html", request=request, employees=planning_employees, users_map=users_map, dept_map=dept_map, evaluation_counts=evaluation_counts, show_nav=True)
+
+
+@router.get("/evaluations/{employee_id}")
+async def employee_evaluation_detail(
+    employee_id: int,
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    _=Depends(_require_planning_director),
+):
+    emp = db.execute(select(Employee).where(Employee.id == employee_id)).scalar_one_or_none()
+    if not emp:
+        raise NotFound("الموظف غير موجود")
+    emp_user = db.execute(select(User).where(User.id == emp.user_id)).scalar_one_or_none()
+    dept = db.execute(select(Department).where(Department.id == emp.department_id)).scalar_one_or_none()
+    role = db.execute(select(Role).where(Role.id == emp.role_id)).scalar_one_or_none()
+    evaluations = db.execute(
+        select(EmployeeEvaluation).where(EmployeeEvaluation.employee_id == employee_id).order_by(desc(EmployeeEvaluation.id))
+    ).scalars().all()
+    evaluator_names = {}
+    for ev in evaluations:
+        if ev.evaluator_id not in evaluator_names:
+            eu = db.execute(select(User).where(User.id == ev.evaluator_id)).scalar_one_or_none()
+            evaluator_names[ev.evaluator_id] = eu.name if eu else "?"
+    directorates = db.execute(
+        select(Department).where(Department.parent_id.is_(None)).where(Department.id != PLANNING_DEPT_ID).order_by(Department.sort_order)
+    ).scalars().all()
+    return render("planning/evaluation_detail.html", request=request, emp=emp, emp_user=emp_user, dept=dept, role=role, evaluations=evaluations, evaluator_names=evaluator_names, directorates=directorates, show_nav=True)
+
+
+@router.post("/evaluations/{employee_id}")
+async def save_evaluation(
+    employee_id: int,
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    _=Depends(_require_planning_director),
+):
+    emp = db.execute(select(Employee).where(Employee.id == employee_id)).scalar_one_or_none()
+    if not emp:
+        raise NotFound("الموظف غير موجود")
+    form = await request.form()
+    title = form.get("title", "")
+    content = form.get("content", "")
+    rating = form.get("rating", type=int)
+    ev = EmployeeEvaluation(
+        employee_id=employee_id,
+        evaluator_id=current_user.id,
+        title=title or f"تقييم {datetime.now(timezone.utc).strftime('%Y-%m-%d')}",
+        content=content,
+        rating=rating,
+    )
+    db.add(ev)
+    db.commit()
+    log_audit(db, current_user, "create", "employee_evaluation", ev.id, f"تقييم للموظف {emp.employee_no}")
+    return RedirectResponse(url=f"/planning/evaluations/{employee_id}", status_code=302)
+
+
+@router.post("/evaluations/{evaluation_id}/share")
+async def share_evaluation(
+    evaluation_id: int,
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    _=Depends(_require_planning_director),
+):
+    ev = db.execute(select(EmployeeEvaluation).where(EmployeeEvaluation.id == evaluation_id)).scalar_one_or_none()
+    if not ev:
+        raise NotFound("التقييم غير موجود")
+    form = await request.form()
+    target_ids = form.getlist("directorate_ids") if hasattr(form, "getlist") else []
+    general_manager = form.get("share_gm") == "on"
+    shared_list = []
+    if target_ids:
+        for did in target_ids:
+            try:
+                directors = db.execute(
+                    select(User).join(Employee).join(Role).where(
+                        Employee.department_id == int(did),
+                        Role.name == "مدير مديرية",
+                    )
+                ).scalars().all()
+                for d in directors:
+                    if d.id not in shared_list:
+                        shared_list.append(d.id)
+                        notification = Notification(
+                            user_id=d.id,
+                            message=f"تقييم جديد: {ev.title}",
+                            related_type="employee_evaluation",
+                            related_id=ev.id,
+                        )
+                        db.add(notification)
+            except ValueError:
+                pass
+    if general_manager:
+        gm_users = db.execute(
+            select(User).join(Employee).join(Role).where(Role.name == "مدير عام")
+        ).scalars().all()
+        for gm in gm_users:
+            if gm.id not in shared_list:
+                shared_list.append(gm.id)
+                notification = Notification(
+                    user_id=gm.id,
+                    message=f"تقييم جديد: {ev.title}",
+                    related_type="employee_evaluation",
+                    related_id=ev.id,
+                )
+                db.add(notification)
+    import json
+    ev.shared_with = json.dumps(shared_list)
+    db.commit()
+    log_audit(db, current_user, "share", "employee_evaluation", ev.id, f"مشاركة تقييم مع {len(shared_list)} مستخدم")
+    return RedirectResponse(url=f"/planning/evaluations/{ev.employee_id}", status_code=302)

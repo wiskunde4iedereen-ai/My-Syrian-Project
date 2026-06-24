@@ -18,11 +18,12 @@ from app.models.complaint import Complaint
 from app.models.vacation_request import VacationRequest
 from app.models.notification import Notification
 from app.models.planning import PlanningReport, PlanningReportStatus
+from app.models.evaluation import EmployeeEvaluation
 
 __all__ = [
     "User", "Exporter", "Product", "Market", "License", "Finance",
     "Document", "AuditLog", "Department", "Role", "Permission",
     "Employee", "Request", "FinancialTransaction", "Project",
     "Event", "Complaint", "VacationRequest", "Notification",
-    "PlanningReport", "PlanningReportStatus",
+    "PlanningReport", "PlanningReportStatus", "EmployeeEvaluation",
 ]

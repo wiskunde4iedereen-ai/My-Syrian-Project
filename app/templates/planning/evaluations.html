@@ -1,0 +1,46 @@
+{% extends "layouts/base.html" %}
+{% block title %}تقييمات الموظفين{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">تقييمات الموظفين</h4>
+</div>
+<div class="card shadow">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>الاسم</th>
+                    <th>القسم / الدائرة</th>
+                    <th>المسمى الوظيفي</th>
+                    <th>عدد التقييمات</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in employees %}
+                {% set u = users_map.get(e.id) %}
+                {% set d = dept_map.get(e.id) %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ u.name if u else '?' }}</td>
+                    <td>{{ d.name if d else '—' }}</td>
+                    <td>{{ e.title or '—' }}</td>
+                    <td>{{ evaluation_counts.get(e.id, 0) }}</td>
+                    <td>
+                        <a href="/planning/evaluations/{{ e.id }}" class="btn btn-sm btn-gov">
+                            <i class="bi bi-eye"></i> عرض
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if not employees %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted">لا يوجد موظفون في المديرية والدوائر التابعة</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
